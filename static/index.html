@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-US" style="height: 100%">
+  <head>
+    <meta charset="utf-8" />
+    <title>Remote control</title>
+    <script>
+      function change_volume_by(by) {
+        const url = "/change_volume?by=" + by;
+        const request = new XMLHttpRequest();
+        request.open("POST", url);
+        request.send();
+      }
+      function increase_volume() {
+        change_volume_by("0.1");
+      }
+      function decrease_volume() {
+        change_volume_by("-0.1");
+      }
+    </script>
+  </head>
+  <body style="height: 100%; padding: 0; margin: 0">
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      "
+    >
+      <button
+        style="font-size: xx-large; margin: 1%; height: 50%; width: 98%"
+        onclick="increase_volume()"
+      >
+        +
+      </button>
+      <button
+        style="
+          font-size: xx-large;
+          margin: 1%;
+          height: 50%;
+          width: 98%;
+          margin-top: 0;
+        "
+        onclick="decrease_volume()"
+      >
+        -
+      </button>
+    </div>
+  </body>
+</html>
