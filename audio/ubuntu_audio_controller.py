@@ -1,6 +1,7 @@
 import alsaaudio
 
 from audio.audio_controller import AudioController
+from audio.helper import bound_value
 
 
 class UbuntuAudioController(AudioController):
@@ -19,9 +20,9 @@ class UbuntuAudioController(AudioController):
         self.mixer.setvolume(int_volume)
 
     def _float_to_percentage_points(self, float_value: float) -> int:
-        bounded = min(1, max(0, float_value))
-        return int(bounded * 100)
+        bounded = bound_value(float_value, 0, 1)
+        return int(bounded * 100.0)
 
     def _percentage_points_to_float(self, pp: int) -> float:
-        bounded = min(100, max(0, pp))
-        return bounded / 100
+        bounded = bound_value(pp, 0, 100)
+        return bounded / 100.0

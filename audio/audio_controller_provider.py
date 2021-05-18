@@ -12,7 +12,10 @@ def create_audio_controller_provider() -> Callable[[], AudioController]:
         return UbuntuAudioController
 
     elif platform.system() == "Windows":
-        raise NotImplementedError("not yet available on Windows")
+        from audio.windows_audio_controller import WindowsAudioController
+
+        singleton = WindowsAudioController()
+        return lambda: singleton
 
     else:
         raise NotImplementedError(f"system {platform.system()} not supported")
