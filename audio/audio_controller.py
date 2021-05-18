@@ -1,4 +1,6 @@
 class AudioController:
+    """allows to get and set the audio level"""
+
     def __init__(self) -> None:
         """init"""
         super().__init__()

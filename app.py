@@ -1,20 +1,7 @@
-import platform
-from typing import Callable
-
+from audio.audio_controller_provider import create_audio_controller_provider
 from flask import Flask, request
 
-from audio.audio_controller import AudioController
-
-audio_controller_provider: Callable[[], AudioController]
-if platform.system() == "Linux":
-    from audio.ubuntu_audio_controller import UbuntuAudioController
-
-    audio_controller_provider = UbuntuAudioController
-elif platform.system() == "Windows":
-    raise NotImplementedError("not yet available on Windows")
-else:
-    raise NotImplementedError(f"platform {platform.system()} not supported")
-
+audio_controller_provider = create_audio_controller_provider()
 
 app = Flask(__name__)
 
