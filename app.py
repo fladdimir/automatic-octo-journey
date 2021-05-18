@@ -31,4 +31,4 @@ def change_volume() -> str:
     return str(current_volume)
 
 
-app.run("0.0.0.0", 5000, debug=True)
+app.run("0.0.0.0", 5000, debug=False)
