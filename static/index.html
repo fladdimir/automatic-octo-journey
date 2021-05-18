@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title>Remote control</title>
     <script>
+      const STEP_SIZE = "0.05";
       function change_volume_by(by) {
         const url = "/change_volume?by=" + by;
         const request = new XMLHttpRequest();
@@ -11,10 +12,10 @@
         request.send();
       }
       function increase_volume() {
-        change_volume_by("0.1");
+        change_volume_by(STEP_SIZE);
       }
       function decrease_volume() {
-        change_volume_by("-0.1");
+        change_volume_by("-" + STEP_SIZE);
       }
     </script>
   </head>
