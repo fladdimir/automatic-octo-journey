@@ -4,18 +4,35 @@
     <meta charset="utf-8" />
     <title>Remote control</title>
     <script>
-      const STEP_SIZE = "0.05";
-      function change_volume_by(by) {
-        const url = "/change_volume?by=" + by;
+      function post(url) {
         const request = new XMLHttpRequest();
         request.open("POST", url);
         request.send();
+      }
+    </script>
+    <script>
+      // audio
+      const STEP_SIZE = "0.05";
+      function change_volume_by(by) {
+        const url = "/change_volume?by=" + by;
+        post(url);
       }
       function increase_volume() {
         change_volume_by(STEP_SIZE);
       }
       function decrease_volume() {
         change_volume_by("-" + STEP_SIZE);
+      }
+    </script>
+    <script>
+      // mouse
+      function change_cursor_position_by(x, y) {
+        const url = "/change_cursor_pos?x=" + x + "&y=" + y;
+        post(url);
+      }
+      function click_left() {
+        const url = "/click";
+        post(url);
       }
     </script>
   </head>
@@ -26,28 +43,201 @@
         flex-direction: column;
         align-items: center;
         height: 100%;
-        padding: 0;
-        margin: 0;
+        touch-action: manipulation;
       "
     >
-      <button
-        style="font-size: xx-large; margin: 1%; height: 50%; width: 98%"
-        onclick="increase_volume()"
-      >
-        +
-      </button>
-      <button
-        style="
-          font-size: xx-large;
-          margin: 1%;
-          height: 50%;
-          width: 98%;
-          margin-top: 0;
-        "
-        onclick="decrease_volume()"
-      >
-        -
-      </button>
+      <!-- mouse -->
+      <div style="margin: 1%; height: 80%; width: 98%">
+        <div
+          id="touch_area"
+          style="
+            width: 99%;
+            height: 100%;
+            border-width: 0.1%;
+            border-color: black;
+            border-style: dotted;
+            border-radius: 0.5%;
+            touch-action: none;
+          "
+        ></div>
+      </div>
+      <!-- audio -->
+      <div style="height: 20%; width: 98%">
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            height: 100%;
+          "
+        >
+          <button
+            style="
+              font-size: xx-large;
+              height: 90%;
+              width: 98%;
+              margin-right: 0.5%;
+            "
+            onclick="decrease_volume()"
+          >
+            -
+          </button>
+          <button
+            style="
+              font-size: xx-large;
+              height: 90%;
+              width: 98%;
+              margin-left: 0.5%;
+            "
+            onclick="increase_volume()"
+          >
+            +
+          </button>
+        </div>
+      </div>
     </div>
+    <script>
+      const touch_element = document.getElementById("touch_area");
+      var initialTouchTimeMs;
+      var initialTouchPos;
+      var previousTouchPos;
+      var currentTouchPos;
+      var rafPending;
+
+      function getGesturePointFromEvent(evt) {
+        var point = {};
+        if (evt.targetTouches) {
+          point.x = evt.targetTouches[0].clientX;
+          point.y = evt.targetTouches[0].clientY;
+        } else {
+          point.x = evt.clientX;
+          point.y = evt.clientY;
+        }
+        return point;
+      }
+
+      this.handleGestureStart = function (evt) {
+        console.log("gesture start");
+        touch_element.style.backgroundColor = "aliceblue";
+        evt.preventDefault();
+        if (evt.touches && evt.touches.length > 1) {
+          return;
+        }
+        if (window.PointerEvent) {
+          evt.target.setPointerCapture(evt.pointerId);
+        } else {
+          document.addEventListener("mousemove", this.handleGestureMove, true);
+          document.addEventListener("mouseup", this.handleGestureEnd, true);
+        }
+        initialTouchTimeMs = Date.now();
+        initialTouchPos = getGesturePointFromEvent(evt);
+        previousTouchPos = initialTouchPos;
+      }.bind(this);
+
+      this.handleGestureEnd = function (evt) {
+        evt.preventDefault();
+        if (evt.touches && evt.touches.length > 0) {
+          return;
+        }
+        rafPending = false;
+        if (window.PointerEvent) {
+          evt.target.releasePointerCapture(evt.pointerId);
+        } else {
+          document.removeEventListener(
+            "mousemove",
+            this.handleGestureMove,
+            true
+          );
+          document.removeEventListener("mouseup", this.handleGestureEnd, true);
+        }
+        this.onGestureEnd();
+      }.bind(this);
+
+      this.onGestureEnd = function () {
+        const GESTURE_DURATION_CLICK_THRESHOLD_MS = 500;
+        console.log("gesture end");
+        touch_element.style.backgroundColor = "white";
+        var gestureDurationMs = Date.now() - initialTouchTimeMs;
+        if (
+          !currentTouchPos && // no movement occured
+          gestureDurationMs < GESTURE_DURATION_CLICK_THRESHOLD_MS
+        ) {
+          click_left();
+        }
+        previousTouchPos = null;
+        currentTouchPos = null;
+      }.bind(this);
+
+      this.handleGestureMove = function (evt) {
+        evt.preventDefault();
+        if (!previousTouchPos) {
+          return;
+        }
+        currentTouchPos = getGesturePointFromEvent(evt);
+        if (rafPending) {
+          return;
+        }
+        rafPending = true;
+        window.requestAnimationFrame(onAnimFrame);
+      }.bind(this);
+
+      function onAnimFrame() {
+        if (!rafPending) {
+          return; // movement ended already
+        }
+        var dx = previousTouchPos.x - currentTouchPos.x;
+        var dy = previousTouchPos.y - currentTouchPos.y;
+        console.log(-dx + ", " + dy);
+        change_cursor_position_by(-dx, dy);
+        previousTouchPos = currentTouchPos;
+        rafPending = false;
+      }
+
+      // Check if pointer events are supported.
+      if (window.PointerEvent) {
+        touch_element.addEventListener(
+          "pointerdown",
+          this.handleGestureStart,
+          true
+        );
+        touch_element.addEventListener(
+          "pointermove",
+          this.handleGestureMove,
+          true
+        );
+        touch_element.addEventListener(
+          "pointerup",
+          this.handleGestureEnd,
+          true
+        );
+        touch_element.addEventListener(
+          "pointercancel",
+          this.handleGestureEnd,
+          true
+        );
+      } else {
+        touch_element.addEventListener(
+          "touchstart",
+          this.handleGestureStart,
+          true
+        );
+        touch_element.addEventListener(
+          "touchmove",
+          this.handleGestureMove,
+          true
+        );
+        touch_element.addEventListener("touchend", this.handleGestureEnd, true);
+        touch_element.addEventListener(
+          "touchcancel",
+          this.handleGestureEnd,
+          true
+        );
+        touch_element.addEventListener(
+          "mousedown",
+          this.handleGestureStart,
+          true
+        );
+      }
+    </script>
   </body>
 </html>
