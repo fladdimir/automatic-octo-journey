@@ -35,6 +35,24 @@
         post(url);
       }
     </script>
+    <script>
+      // keyboard
+      function type(content) {
+        const url = "/type?content=" + encodeURIComponent(content);
+        post(url);
+      }
+      function onInputChange(event) {
+        var value = event.key;
+        value = value === "Enter" ? "\n" : value;
+        type(value);
+        return false;
+      }
+      function onKeyDown(event) {
+        if (event.key === "Backspace") {
+          type("Backspace");
+        }
+      }
+    </script>
   </head>
   <body style="height: 100%; padding: 0; margin: 0">
     <div
@@ -95,6 +113,20 @@
           </button>
         </div>
       </div>
+      <!-- input -->
+      <input
+        type="text"
+        style="
+          width: 95%;
+          margin: 1%;
+          margin-top: 0.5%;
+          margin-bottom: 1.5%;
+          font-size: 36pt;
+        "
+        placeholder="type remotely..."
+        onkeypress="return onInputChange(event)"
+        onkeydown="onKeyDown(event)"
+      />
     </div>
     <script>
       const touch_element = document.getElementById("touch_area");

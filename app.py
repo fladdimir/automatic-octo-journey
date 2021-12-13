@@ -2,6 +2,7 @@ from flask import Flask, request
 
 from audio.audio_controller_provider import create_audio_controller_provider
 from mouse import mouse
+from keys import keys
 
 audio_controller_provider = create_audio_controller_provider()
 
@@ -53,5 +54,12 @@ def click() -> str:
     return "ok"
 
 
+@app.route("/type", methods=["POST"])
+def type() -> str:
+    content = str(request.args.get("content"))
+    keys.tap(content)
+    return content
+
+
 # run
-app.run("0.0.0.0", 5000, debug=False)
+app.run("0.0.0.0", 5000, debug=True)
