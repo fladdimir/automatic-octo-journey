@@ -14,6 +14,11 @@ def index():
     return app.send_static_file("index.html")
 
 
+@app.route("/static/<path>")
+def static_file(path):
+    return app.send_static_file(path)
+
+
 # audio
 def get_level_str() -> str:
     current_volume = audio_controller_provider().get_level()
@@ -62,4 +67,4 @@ def type() -> str:
 
 
 # run
-app.run("0.0.0.0", 5000, debug=True)
+app.run("0.0.0.0", 5000, debug=False)
