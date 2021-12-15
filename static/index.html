@@ -48,11 +48,17 @@
         const url = "/type?content=" + encodeURIComponent(content);
         post(url);
       }
-      function onInputChange(event) {
+      function onKeyPress(event) {
         var value = event.key;
-        value = value === "Enter" ? "\n" : value;
+
+        if (value === "Enter") {
+          type("\n");
+          event.target.value = ""; // clear input
+          return false;
+        }
+
         type(value);
-        return false;
+        return true;
       }
       function onKeyDown(event) {
         if (event.key === "Backspace") {
@@ -131,7 +137,7 @@
           font-size: 36pt;
         "
         placeholder="type remotely..."
-        onkeypress="return onInputChange(event)"
+        onkeypress="return onKeyPress(event)"
         onkeydown="onKeyDown(event)"
       />
     </div>
