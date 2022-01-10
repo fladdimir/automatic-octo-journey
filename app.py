@@ -1,8 +1,8 @@
 from flask import Flask, request
 
 from audio.audio_controller_provider import create_audio_controller_provider
-from mouse import mouse
 from keys import keys
+from mouse import mouse
 
 audio_controller_provider = create_audio_controller_provider()
 
@@ -60,7 +60,7 @@ def click() -> str:
 
 
 @app.route("/type", methods=["POST"])
-def type() -> str:
+def type_key() -> str:
     content = str(request.args.get("content"))
     keys.tap(content)
     return content

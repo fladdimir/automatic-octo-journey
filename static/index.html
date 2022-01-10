@@ -139,8 +139,15 @@
         placeholder="type remotely..."
         onkeypress="return onKeyPress(event)"
         onkeydown="onKeyDown(event)"
+        id="input_type_remotely"
       />
     </div>
+    <script>
+      if (/Android/i.test(navigator.userAgent)) {
+        var input_remotely = document.getElementById("input_type_remotely");
+        input_remotely.parentElement.removeChild(input_remotely); // unsupported...
+      }
+    </script>
     <script>
       const touch_element = document.getElementById("touch_area");
       var initialTouchTimeMs;
@@ -199,14 +206,11 @@
       }.bind(this);
 
       this.onGestureEnd = function () {
-        const GESTURE_DURATION_CLICK_THRESHOLD_MS = 500;
         console.log("gesture end");
         touch_element.style.backgroundColor = "white";
+        const GESTURE_DURATION_CLICK_THRESHOLD_MS = 200;
         var gestureDurationMs = Date.now() - initialTouchTimeMs;
-        if (
-          !currentTouchPos && // no movement occured
-          gestureDurationMs < GESTURE_DURATION_CLICK_THRESHOLD_MS
-        ) {
+        if (gestureDurationMs < GESTURE_DURATION_CLICK_THRESHOLD_MS) {
           click_left();
         }
         previousTouchPos = null;
