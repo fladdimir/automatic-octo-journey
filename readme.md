@@ -21,6 +21,11 @@ python app.py
 
 <http://127.0.0.1:5000>
 
+#### problems with mouse cursor movements on linux wayland?
+
+sudo -E ./venv/bin/python app.py  
+(uinput requires root privileges to create the input device. privileges are dropped upon device creation)
+
 ## test
 
 pytest .

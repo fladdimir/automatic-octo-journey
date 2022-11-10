@@ -1,3 +1,5 @@
 flask
 pynput
 pytest
+Flask-HTTPAuth
+python-dotenv
