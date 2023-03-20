@@ -14,6 +14,12 @@ class WindowsAudioController(AudioController):
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         self.volume = cast(interface, POINTER(IAudioEndpointVolume))
 
+    def increase(self) -> None:
+        self.set_level(self.get_level() + 0.05)
+
+    def decrease(self) -> None:
+        self.set_level(self.get_level() - 0.05)
+
     def get_level(self) -> float:
         return self.volume.GetMasterVolumeLevelScalar()
 

@@ -3,3 +3,4 @@ pynput
 pytest
 Flask-HTTPAuth
 python-dotenv
+debugpy

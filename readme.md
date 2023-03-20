@@ -26,6 +26,10 @@ python app.py
 sudo -E ./venv/bin/python app.py  
 (uinput requires root privileges to create the input device. privileges are dropped upon device creation)
 
+##### debug
+
+sudo -E ./venv/bin/python -m debugpy --listen 5678 ./app.py
+
 ## test
 
 pytest .

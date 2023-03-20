@@ -1,28 +1,30 @@
-import alsaaudio
+import os
+import pwd
+import subprocess
 
 from audio.audio_controller import AudioController
-from audio.helper import bound_value
 
 
 class UbuntuAudioController(AudioController):
     def __init__(self) -> None:
         super().__init__()
-        mixers = alsaaudio.mixers()
-        self.mixer = alsaaudio.Mixer(mixers[0])
 
-    def get_level(self) -> float:
-        vols = self.mixer.getvolume()
-        int_vol = int(vols[0])
-        return self._percentage_points_to_float(int_vol)
+    def increase(self) -> None:
+        self._change(True)
 
-    def set_level(self, level: float) -> None:
-        int_volume = self._float_to_percentage_points(level)
-        self.mixer.setvolume(int_volume)
+    def decrease(self) -> None:
+        self._change(False)
 
-    def _float_to_percentage_points(self, float_value: float) -> int:
-        bounded = bound_value(float_value, 0, 1)
-        return int(bounded * 100.0)
+    def _change(self, increase: bool) -> None:
+        suffix = "+" if increase else "-"
+        cmd = "amixer -D pulse sset Master 5%" + suffix
+        uid = self._get_user_id()
+        subprocess.run(cmd, shell=True, check=True, user=uid)
 
-    def _percentage_points_to_float(self, pp: int) -> float:
-        bounded = bound_value(pp, 0, 100)
-        return bounded / 100.0
+    def _get_user_id(self) -> int:
+        current_user = os.getuid()
+        if current_user != 0:
+            return current_user  # non-root
+        user_name = os.getenv("SUDO_USER")
+        pwnam = pwd.getpwnam(user_name)
+        return pwnam.pw_uid

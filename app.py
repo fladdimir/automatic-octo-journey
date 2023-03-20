@@ -41,31 +41,16 @@ def static_file(path):
     return app.send_static_file(path)
 
 
-# audio
-def get_level_str() -> str:
-    current_volume = audio_controller_provider().get_level()
-    print(f"\ncurrent volume: {current_volume}")
-    return str(current_volume)
-
-
-@app.route("/volume", methods=["GET", "POST"])
-@auth.login_required
-def volume() -> str:
-    if request.method == "GET":
-        return get_level_str()
-    elif request.method == "POST":
-        new_value = float(request.args.get("new_value"))  # ?new_value=0.12
-        audio_controller_provider().set_level(new_value)
-        return get_level_str()
-
-
 @app.route("/change_volume", methods=["POST"])
 @auth.login_required
 def change_volume() -> str:
     change_by = float(request.args.get("by"))  # ?by=-0.05
-    current_volume = audio_controller_provider().get_level()
-    audio_controller_provider().set_level(current_volume + change_by)
-    return get_level_str()
+    is_increase = change_by > 0
+    if is_increase:
+        audio_controller_provider().increase()
+    else:
+        audio_controller_provider().decrease()
+    return "ok"
 
 
 # mouse
